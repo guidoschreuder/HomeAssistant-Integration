@@ -37,6 +37,24 @@ from .transceiver import RX11Transceiver
 _LOGGER = logging.getLogger(__name__)
 
 
+def _alias_feature_enums_for_triggers() -> None:
+    """Let HA resolve ``easywave.Easywave*Feature`` from triggers.yaml.
+
+    Home Assistant looks up trigger ``supported_features`` as
+    ``homeassistant.components.<domain>``. HACS lives under
+    ``custom_components``; without this alias the YAML feature filters
+    fail to load and every enum sensor shows all button + gateway triggers.
+    """
+    import sys
+
+    core_mod = "homeassistant.components.easywave"
+    if core_mod not in sys.modules:
+        sys.modules[core_mod] = sys.modules[__name__]
+
+
+_alias_feature_enums_for_triggers()
+
+
 @dataclass
 class EasywaveRuntimeData:
     """Runtime data for the Easywave integration."""

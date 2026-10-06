@@ -22,7 +22,9 @@ from homeassistant.helpers.typing import ConfigType
 from .const import (
     CONF_BUTTON_COUNT,
     CONF_ENTRY_TYPE,
+    CONF_OPERATING_TYPE,
     CONF_SWITCH_MODE,
+    CONF_USAGE_TYPE,
     DOMAIN,
     ENTRY_TYPE_TRANSMITTER,
     EVENT_EASYWAVE,
@@ -30,8 +32,13 @@ from .const import (
     EVENT_TYPE_BATTERY_NORMAL,
     EVENT_TYPE_BUTTON_PRESS,
     EVENT_TYPE_BUTTON_RELEASE,
+    EVENT_TYPE_CLOSED,
     EVENT_TYPE_GATEWAY_CONNECTED,
     EVENT_TYPE_GATEWAY_DISCONNECTED,
+    EVENT_TYPE_OPENED,
+    EVENT_TYPE_STOPPED,
+    EVENT_TYPE_TURNED_OFF,
+    EVENT_TYPE_TURNED_ON,
     TRANSMITTER_SWITCH_IMPULSE,
 )
 from .devices import get_device_data
@@ -47,6 +54,11 @@ _GATEWAY_TRIGGER_TYPES = (
 _TRANSMITTER_TRIGGER_TYPES = (
     EVENT_TYPE_BUTTON_PRESS,
     EVENT_TYPE_BUTTON_RELEASE,
+    EVENT_TYPE_TURNED_ON,
+    EVENT_TYPE_TURNED_OFF,
+    EVENT_TYPE_OPENED,
+    EVENT_TYPE_CLOSED,
+    EVENT_TYPE_STOPPED,
     *_BATTERY_TRIGGER_TYPES,
 )
 
@@ -164,42 +176,64 @@ async def async_get_triggers(
     if device_data.get(CONF_ENTRY_TYPE) != ENTRY_TYPE_TRANSMITTER:
         return []
 
-    button_count = min(int(device_data.get(CONF_BUTTON_COUNT, 4)), 4)
-    switch_mode = device_data.get(CONF_SWITCH_MODE, TRANSMITTER_SWITCH_IMPULSE)
-    triggers: list[dict[str, Any]] = [
-        {
-            CONF_PLATFORM: "device",
-            CONF_DOMAIN: DOMAIN,
-            CONF_DEVICE_ID: device_id,
-            CONF_TYPE: EVENT_TYPE_BUTTON_PRESS,
-            CONF_SUBTYPE: button,
-        }
-        for button in _BUTTON_SUBTYPES[:button_count]
-    ]
-    if switch_mode == TRANSMITTER_SWITCH_IMPULSE:
-        triggers.append(
-            {
-                CONF_PLATFORM: "device",
-                CONF_DOMAIN: DOMAIN,
-                CONF_DEVICE_ID: device_id,
-                CONF_TYPE: EVENT_TYPE_BUTTON_RELEASE,
-                CONF_SUBTYPE: "released",
-            }
+    operating_type = str(device_data.get(CONF_OPERATING_TYPE, "1"))
+    usage = str(device_data.get(CONF_USAGE_TYPE, "switch"))
+    triggers: list[dict[str, Any]] = []
+    if operating_type == "2" and usage == "cover":
+        triggers.extend(
+            _device_trigger(device_id, event_type, subtype)
+            for event_type, subtype in (
+                (EVENT_TYPE_OPENED, "up"),
+                (EVENT_TYPE_CLOSED, "down"),
+            )
         )
+    elif operating_type == "2":
+        triggers.extend(
+            _device_trigger(device_id, event_type, subtype)
+            for event_type, subtype in (
+                (EVENT_TYPE_TURNED_ON, "on"),
+                (EVENT_TYPE_TURNED_OFF, "off"),
+            )
+        )
+    elif operating_type == "3":
+        triggers.extend(
+            _device_trigger(device_id, event_type, subtype)
+            for event_type, subtype in (
+                (EVENT_TYPE_OPENED, "up"),
+                (EVENT_TYPE_CLOSED, "down"),
+                (EVENT_TYPE_STOPPED, "stop"),
+            )
+        )
+    else:
+        button_count = min(int(device_data.get(CONF_BUTTON_COUNT, 4)), 4)
+        switch_mode = device_data.get(CONF_SWITCH_MODE, TRANSMITTER_SWITCH_IMPULSE)
+        triggers.extend(
+            _device_trigger(device_id, EVENT_TYPE_BUTTON_PRESS, button)
+            for button in _BUTTON_SUBTYPES[:button_count]
+        )
+        if switch_mode == TRANSMITTER_SWITCH_IMPULSE:
+            triggers.append(
+                _device_trigger(device_id, EVENT_TYPE_BUTTON_RELEASE, "released")
+            )
     triggers.extend(
-        {
-            CONF_PLATFORM: "device",
-            CONF_DOMAIN: DOMAIN,
-            CONF_DEVICE_ID: device_id,
-            CONF_TYPE: trigger_type,
-            CONF_SUBTYPE: subtype,
-        }
+        _device_trigger(device_id, trigger_type, subtype)
         for trigger_type, subtype in (
             (EVENT_TYPE_BATTERY_LOW, "low"),
             (EVENT_TYPE_BATTERY_NORMAL, "ok"),
         )
     )
     return triggers
+
+
+def _device_trigger(device_id: str, trigger_type: str, subtype: str) -> dict[str, Any]:
+    """Build a device-trigger descriptor."""
+    return {
+        CONF_PLATFORM: "device",
+        CONF_DOMAIN: DOMAIN,
+        CONF_DEVICE_ID: device_id,
+        CONF_TYPE: trigger_type,
+        CONF_SUBTYPE: subtype,
+    }
 
 
 async def async_attach_trigger(

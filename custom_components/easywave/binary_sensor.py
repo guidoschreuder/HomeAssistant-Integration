@@ -20,6 +20,9 @@ from .const import (
     CONF_SENSOR_CAPABILITIES,
     ENTRY_TYPE_NEO_SENSOR,
     ENTRY_TYPE_TRANSMITTER,
+    EVENT_TYPE_CLOSED,
+    EVENT_TYPE_OPENED,
+    EasywaveTransmitterFeature,
 )
 from .devices import get_devices
 from .entity import EasywaveDeviceEntry, EasywaveNeoSensorEntity, EasywaveTransmitterEntity
@@ -82,6 +85,10 @@ class EasywaveTransmitterCoverStateBinarySensor(
             self._close_button = 1  # B
         super().__init__(entry, device, suffix)
         self._attr_is_on = False  # on = open
+        self._attr_supported_features = int(
+            EasywaveTransmitterFeature.COVER_OPEN
+            | EasywaveTransmitterFeature.COVER_CLOSE
+        )
 
     @override
     async def async_added_to_hass(self) -> None:
@@ -106,9 +113,15 @@ class EasywaveTransmitterCoverStateBinarySensor(
         if event.button == self._open_button:
             self._attr_is_on = True
             self.async_write_ha_state()
+            self._coordinator.fire_device_event(
+                self._device_id, EVENT_TYPE_OPENED, subtype="up"
+            )
         elif event.button == self._close_button:
             self._attr_is_on = False
             self.async_write_ha_state()
+            self._coordinator.fire_device_event(
+                self._device_id, EVENT_TYPE_CLOSED, subtype="down"
+            )
 
 
 class EasywaveNeoBatteryBinarySensor(EasywaveNeoSensorEntity, BinarySensorEntity):

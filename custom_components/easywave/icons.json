@@ -193,6 +193,21 @@
     "button_release": {
       "trigger": "mdi:radiobox-blank"
     },
+    "turned_on": {
+      "trigger": "mdi:light-switch"
+    },
+    "turned_off": {
+      "trigger": "mdi:light-switch-off"
+    },
+    "opened": {
+      "trigger": "mdi:window-shutter-open"
+    },
+    "closed": {
+      "trigger": "mdi:window-shutter"
+    },
+    "stopped": {
+      "trigger": "mdi:stop-circle"
+    },
     "gateway_connected": {
       "trigger": "mdi:lan-connect"
     },

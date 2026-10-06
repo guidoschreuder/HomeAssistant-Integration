@@ -1,7 +1,7 @@
 """Provides triggers for Easywave devices."""
 
 from abc import ABC
-from typing import cast, override
+from typing import ClassVar, cast, override
 
 import voluptuous as vol
 
@@ -25,8 +25,13 @@ from .const import (
     EVENT_EASYWAVE,
     EVENT_TYPE_BUTTON_PRESS,
     EVENT_TYPE_BUTTON_RELEASE,
+    EVENT_TYPE_CLOSED,
     EVENT_TYPE_GATEWAY_CONNECTED,
     EVENT_TYPE_GATEWAY_DISCONNECTED,
+    EVENT_TYPE_OPENED,
+    EVENT_TYPE_STOPPED,
+    EVENT_TYPE_TURNED_OFF,
+    EVENT_TYPE_TURNED_ON,
 )
 
 CONF_SUBTYPE = "subtype"
@@ -45,6 +50,8 @@ class EasywaveEventTrigger(Trigger, ABC):
     _event_type: str
     _subtype: str | None = None
     _schema = _TRIGGER_SCHEMA
+    # Match triggers.yaml: gateway triggers include diagnostic status entities.
+    _primary_entities_only: ClassVar[bool] = True
 
     @override
     @classmethod
@@ -63,7 +70,9 @@ class EasywaveEventTrigger(Trigger, ABC):
     def _device_ids_from_target(self) -> set[str]:
         """Return device registry IDs referenced by the trigger target."""
         referenced = async_extract_referenced_entity_ids(
-            self._hass, TargetSelection(self._target)
+            self._hass,
+            TargetSelection(self._target),
+            primary_entities_only=self._primary_entities_only,
         )
         device_ids = set(referenced.referenced_devices)
         for entity_id in referenced.referenced | referenced.indirectly_referenced:
@@ -125,6 +134,7 @@ class EasywaveGatewayConnectedTrigger(EasywaveEventTrigger):
 
     _event_type = EVENT_TYPE_GATEWAY_CONNECTED
     _subtype = "connected"
+    _primary_entities_only = False
 
 
 class EasywaveGatewayDisconnectedTrigger(EasywaveEventTrigger):
@@ -132,6 +142,42 @@ class EasywaveGatewayDisconnectedTrigger(EasywaveEventTrigger):
 
     _event_type = EVENT_TYPE_GATEWAY_DISCONNECTED
     _subtype = "disconnected"
+    _primary_entities_only = False
+
+
+class EasywaveTurnedOnTrigger(EasywaveEventTrigger):
+    """Listen for Ein/Aus transmitter turned-on events."""
+
+    _event_type = EVENT_TYPE_TURNED_ON
+    _subtype = "on"
+
+
+class EasywaveTurnedOffTrigger(EasywaveEventTrigger):
+    """Listen for Ein/Aus transmitter turned-off events."""
+
+    _event_type = EVENT_TYPE_TURNED_OFF
+    _subtype = "off"
+
+
+class EasywaveOpenedTrigger(EasywaveEventTrigger):
+    """Listen for Auf/Zu transmitter opened events."""
+
+    _event_type = EVENT_TYPE_OPENED
+    _subtype = None
+
+
+class EasywaveClosedTrigger(EasywaveEventTrigger):
+    """Listen for Auf/Zu transmitter closed events."""
+
+    _event_type = EVENT_TYPE_CLOSED
+    _subtype = None
+
+
+class EasywaveStoppedTrigger(EasywaveEventTrigger):
+    """Listen for 3-button cover stop events."""
+
+    _event_type = EVENT_TYPE_STOPPED
+    _subtype = "stop"
 
 
 TRIGGERS: dict[str, type[Trigger]] = {
@@ -140,6 +186,11 @@ TRIGGERS: dict[str, type[Trigger]] = {
     "button_press_c": _make_button_press_trigger("c"),
     "button_press_d": _make_button_press_trigger("d"),
     "button_release": EasywaveButtonReleaseTrigger,
+    "turned_on": EasywaveTurnedOnTrigger,
+    "turned_off": EasywaveTurnedOffTrigger,
+    "opened": EasywaveOpenedTrigger,
+    "closed": EasywaveClosedTrigger,
+    "stopped": EasywaveStoppedTrigger,
     "gateway_connected": EasywaveGatewayConnectedTrigger,
     "gateway_disconnected": EasywaveGatewayDisconnectedTrigger,
 }

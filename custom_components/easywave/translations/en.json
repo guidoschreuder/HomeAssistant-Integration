@@ -331,17 +331,27 @@
       "connected": "Connected",
       "d": "Button D",
       "disconnected": "Disconnected",
+      "down": "Closed",
       "low": "Low",
+      "off": "Off",
       "ok": "OK",
-      "released": "Not pressed"
+      "on": "On",
+      "released": "Not pressed",
+      "stop": "Stop",
+      "up": "Open"
     },
     "trigger_type": {
       "battery_low": "Battery low",
       "battery_normal": "Battery OK",
       "button_press": "Button pressed ({subtype})",
       "button_release": "Button released",
+      "closed": "Closed",
       "gateway_connected": "Gateway connected",
-      "gateway_disconnected": "Gateway disconnected"
+      "gateway_disconnected": "Gateway disconnected",
+      "opened": "Opened",
+      "stopped": "Stopped",
+      "turned_off": "Turned off",
+      "turned_on": "Turned on"
     }
   },
   "entity": {
@@ -685,6 +695,26 @@
     "button_release": {
       "description": "Triggers when the button is released (impulse mode only).",
       "name": "Button released"
+    },
+    "turned_on": {
+      "description": "Triggers when an on/off transmitter switches on.",
+      "name": "Turned on"
+    },
+    "turned_off": {
+      "description": "Triggers when an on/off transmitter switches off.",
+      "name": "Turned off"
+    },
+    "opened": {
+      "description": "Triggers when an open/close transmitter opens.",
+      "name": "Opened"
+    },
+    "closed": {
+      "description": "Triggers when an open/close transmitter closes.",
+      "name": "Closed"
+    },
+    "stopped": {
+      "description": "Triggers when a 3-button cover transmitter stops.",
+      "name": "Stopped"
     },
     "gateway_connected": {
       "description": "Triggers when the RX11 USB transceiver is connected.",

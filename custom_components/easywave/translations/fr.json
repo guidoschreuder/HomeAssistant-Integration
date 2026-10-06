@@ -325,23 +325,33 @@
   },
   "device_automation": {
     "trigger_subtype": {
-      "a": "Button A",
-      "b": "Button B",
-      "c": "Button C",
-      "connected": "Connected",
-      "d": "Button D",
-      "disconnected": "Disconnected",
-      "low": "Low",
+      "a": "Bouton A",
+      "b": "Bouton B",
+      "c": "Bouton C",
+      "connected": "Connecté",
+      "d": "Bouton D",
+      "disconnected": "Déconnecté",
+      "down": "Fermé",
+      "low": "Faible",
+      "off": "Éteint",
       "ok": "OK",
-      "released": "Not pressed"
+      "on": "Allumé",
+      "released": "Non appuyé",
+      "stop": "Stop",
+      "up": "Ouvert"
     },
     "trigger_type": {
       "battery_low": "Battery low",
       "battery_normal": "Battery OK",
-      "button_press": "Button pressed ({subtype})",
-      "button_release": "Button released",
-      "gateway_connected": "Gateway connected",
-      "gateway_disconnected": "Gateway disconnected"
+      "button_press": "Bouton appuyé ({subtype})",
+      "button_release": "Bouton relâché",
+      "closed": "Fermé",
+      "gateway_connected": "Passerelle connectée",
+      "gateway_disconnected": "Passerelle déconnectée",
+      "opened": "Ouvert",
+      "stopped": "Arrêté",
+      "turned_off": "Éteint",
+      "turned_on": "Allumé"
     }
   },
   "entity": {
@@ -685,6 +695,26 @@
     "button_release": {
       "description": "Triggers when the button is released (impulse mode only).",
       "name": "Button released"
+    },
+    "turned_on": {
+      "description": "Se déclenche lorsqu'un émetteur marche/arrêt s'allume.",
+      "name": "Allumé"
+    },
+    "turned_off": {
+      "description": "Se déclenche lorsqu'un émetteur marche/arrêt s'éteint.",
+      "name": "Éteint"
+    },
+    "opened": {
+      "description": "Se déclenche lorsqu'un émetteur ouverture/fermeture s'ouvre.",
+      "name": "Ouvert"
+    },
+    "closed": {
+      "description": "Se déclenche lorsqu'un émetteur ouverture/fermeture se ferme.",
+      "name": "Fermé"
+    },
+    "stopped": {
+      "description": "Se déclenche lorsqu'un émetteur volet 3 boutons s'arrête.",
+      "name": "Arrêté"
     },
     "gateway_connected": {
       "description": "Triggers when the RX11 USB transceiver is connected.",

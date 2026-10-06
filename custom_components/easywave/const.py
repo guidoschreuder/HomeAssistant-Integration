@@ -121,6 +121,11 @@ EVENT_TYPE_BATTERY_LOW: Final = "battery_low"
 EVENT_TYPE_BATTERY_NORMAL: Final = "battery_normal"
 EVENT_TYPE_GATEWAY_CONNECTED: Final = "gateway_connected"
 EVENT_TYPE_GATEWAY_DISCONNECTED: Final = "gateway_disconnected"
+EVENT_TYPE_TURNED_ON: Final = "turned_on"
+EVENT_TYPE_TURNED_OFF: Final = "turned_off"
+EVENT_TYPE_OPENED: Final = "opened"
+EVENT_TYPE_CLOSED: Final = "closed"
+EVENT_TYPE_STOPPED: Final = "stopped"
 
 CONF_ENTRY_TYPE: Final = "entry_type"
 CONF_DEVICE_TITLE: Final = "title"
@@ -350,6 +355,11 @@ class EasywaveTransmitterFeature(IntFlag):
     BUTTON_C = 4
     BUTTON_D = 8
     BUTTON_RELEASE = 16
+    SWITCH_ON = 64
+    SWITCH_OFF = 128
+    COVER_OPEN = 256
+    COVER_CLOSE = 512
+    COVER_STOP = 1024
 
 
 _BUTTON_FEATURE_BY_INDEX: Final = (

@@ -37,11 +37,17 @@ from .const import (
     ENTRY_TYPE_TRANSMITTER,
     EVENT_TYPE_BATTERY_LOW,
     EVENT_TYPE_BATTERY_NORMAL,
+    EVENT_TYPE_CLOSED,
     EVENT_TYPE_GATEWAY_CONNECTED,
     EVENT_TYPE_GATEWAY_DISCONNECTED,
+    EVENT_TYPE_OPENED,
+    EVENT_TYPE_STOPPED,
+    EVENT_TYPE_TURNED_OFF,
+    EVENT_TYPE_TURNED_ON,
     TRANSMITTER_SWITCH_IMPULSE,
     TRANSMITTER_SWITCH_PERMANENT,
     EasywaveGatewayFeature,
+    EasywaveTransmitterFeature,
     transmitter_trigger_features,
 )
 from .coordinator import EasywaveCoordinator
@@ -346,6 +352,16 @@ class EasywaveTransmitterButtonEnumSensor(EasywaveTransmitterEntity, RestoreSens
         self._switch_mode = switch_mode
         self._attr_translation_key = f"button_{letter}"
         self._attr_options = ["pressed", "released"]
+        features = EasywaveTransmitterFeature(0)
+        features |= (
+            EasywaveTransmitterFeature.BUTTON_A,
+            EasywaveTransmitterFeature.BUTTON_B,
+            EasywaveTransmitterFeature.BUTTON_C,
+            EasywaveTransmitterFeature.BUTTON_D,
+        )[button_index]
+        if switch_mode == TRANSMITTER_SWITCH_IMPULSE:
+            features |= EasywaveTransmitterFeature.BUTTON_RELEASE
+        self._attr_supported_features = int(features)
         self._native_value: str | None = "released"
 
     @override
@@ -458,7 +474,25 @@ class EasywaveTransmitterStateSensor(EasywaveTransmitterEntity, RestoreSensor):
             self._map = {0: "on", 1: "off"}
 
         super().__init__(entry, device, suffix)
+        if mode == "cover3":
+            self._attr_supported_features = int(
+                EasywaveTransmitterFeature.COVER_OPEN
+                | EasywaveTransmitterFeature.COVER_CLOSE
+                | EasywaveTransmitterFeature.COVER_STOP
+            )
+        else:
+            self._attr_supported_features = int(
+                EasywaveTransmitterFeature.SWITCH_ON
+                | EasywaveTransmitterFeature.SWITCH_OFF
+            )
         self._native_value: str | None = None
+        self._event_by_state = {
+            "on": EVENT_TYPE_TURNED_ON,
+            "off": EVENT_TYPE_TURNED_OFF,
+            "up": EVENT_TYPE_OPENED,
+            "down": EVENT_TYPE_CLOSED,
+            "stop": EVENT_TYPE_STOPPED,
+        }
 
     @override
     async def async_added_to_hass(self) -> None:
@@ -493,6 +527,10 @@ class EasywaveTransmitterStateSensor(EasywaveTransmitterEntity, RestoreSensor):
             return
         self._native_value = value
         self.async_write_ha_state()
+        if event_type := self._event_by_state.get(value):
+            self._coordinator.fire_device_event(
+                self._device_id, event_type, subtype=value
+            )
 
 
 _BATTERY_STATE_OK = "ok"

@@ -1,6 +1,5 @@
-# HACS/custom: omit supported_features — HA only resolves
-# homeassistant.components.<domain> enums (CORE-only). Sensors still set
-# Easywave*Feature flags for runtime filtering.
+# Feature enums resolve via homeassistant.components.easywave (HACS aliases
+# that module in __init__.py; Core ships the same names natively).
 
 button_press_a:
   target:
@@ -9,6 +8,8 @@ button_press_a:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.BUTTON_A
 
 button_press_b:
   target:
@@ -17,6 +18,8 @@ button_press_b:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.BUTTON_B
 
 button_press_c:
   target:
@@ -25,6 +28,8 @@ button_press_c:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.BUTTON_C
 
 button_press_d:
   target:
@@ -33,6 +38,8 @@ button_press_d:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.BUTTON_D
 
 button_release:
   target:
@@ -41,6 +48,66 @@ button_release:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.BUTTON_RELEASE
+
+turned_on:
+  target:
+    primary_entities_only: true
+    entity:
+      - integration: easywave
+        domain: sensor
+        device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.SWITCH_ON
+
+turned_off:
+  target:
+    primary_entities_only: true
+    entity:
+      - integration: easywave
+        domain: sensor
+        device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.SWITCH_OFF
+
+opened:
+  target:
+    primary_entities_only: true
+    entity:
+      - integration: easywave
+        domain: sensor
+        device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.COVER_OPEN
+      - integration: easywave
+        domain: binary_sensor
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.COVER_OPEN
+
+closed:
+  target:
+    primary_entities_only: true
+    entity:
+      - integration: easywave
+        domain: sensor
+        device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.COVER_CLOSE
+      - integration: easywave
+        domain: binary_sensor
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.COVER_CLOSE
+
+stopped:
+  target:
+    primary_entities_only: true
+    entity:
+      - integration: easywave
+        domain: sensor
+        device_class: enum
+        supported_features:
+          - easywave.EasywaveTransmitterFeature.COVER_STOP
 
 gateway_connected:
   target:
@@ -49,6 +116,8 @@ gateway_connected:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveGatewayFeature.GATEWAY_STATUS
 
 gateway_disconnected:
   target:
@@ -57,3 +126,5 @@ gateway_disconnected:
       - integration: easywave
         domain: sensor
         device_class: enum
+        supported_features:
+          - easywave.EasywaveGatewayFeature.GATEWAY_STATUS
