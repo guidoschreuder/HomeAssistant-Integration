@@ -697,19 +697,19 @@
       "name": "Button released"
     },
     "turned_on": {
-      "description": "Triggers when an Ein/Aus transmitter switches on.",
+      "description": "Triggers when an On/Off transmitter switches on.",
       "name": "Turned on"
     },
     "turned_off": {
-      "description": "Triggers when an Ein/Aus transmitter switches off.",
+      "description": "Triggers when an On/Off transmitter switches off.",
       "name": "Turned off"
     },
     "opened": {
-      "description": "Triggers when an Auf/Zu transmitter opens.",
+      "description": "Triggers when an Open/Close transmitter opens.",
       "name": "Opened"
     },
     "closed": {
-      "description": "Triggers when an Auf/Zu transmitter closes.",
+      "description": "Triggers when an Open/Close transmitter closes.",
       "name": "Closed"
     },
     "stopped": {

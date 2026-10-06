@@ -1,17 +1,18 @@
 # Easywave Integration Changelog
 
-## 0.7.11 — Transmitter trigger filtering and Ein/Aus / Auf/Zu state triggers
+## 0.7.11 — Transmitter trigger filtering and On/Off / Open/Close state triggers
 
 ### Fixed
 - Transmitter trigger lists are filtered by entity features again, so impulse
   devices no longer show all four buttons plus gateway-connected.
-- On/off (Ein/Aus) and open/close (Auf/Zu) transmitters expose state triggers
-  (**Turned on** / **Turned off**, **Opened** / **Closed**, **Stopped**) instead
-  of button-press triggers.
+- On/Off transmitters expose **Turned on** / **Turned off** (DE: Eingeschaltet /
+  Ausgeschaltet) instead of button-press triggers.
+- Open/Close transmitters expose **Opened** / **Closed** (DE: Geöffnet /
+  Geschlossen); 3-button covers also expose **Stopped**.
 
 ### Changed
-- German trigger labels: **Taste A–D betätigt**, **Nicht betätigt**, gateway
-  connected/disconnected, and the new state trigger names.
+- German trigger labels: **Taste A–D betätigt**, **Nicht betätigt**,
+  **Gateway verbunden** / **Gateway getrennt**, plus the state trigger names above.
 
 ## 0.7.10 — Default names use FD index for receivers
 
