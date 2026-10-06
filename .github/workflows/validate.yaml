@@ -31,8 +31,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Hassfest resolves trigger supported_features via
+      # homeassistant.components.easywave, which is not in Core yet. Mount a
+      # stub that re-exports the HACS feature enums from const.py.
       - name: Hassfest validation
-        uses: home-assistant/actions/hassfest@master
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/github/workspace" \
+            -v "${{ github.workspace }}/scripts/hassfest_easywave_stub:/usr/src/homeassistant/homeassistant/components/easywave:ro" \
+            ghcr.io/home-assistant/hassfest
 
   hacs:
     name: HACS

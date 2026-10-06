@@ -72,8 +72,11 @@ detect_core_path() {
 run_hassfest_docker() {
   echo "${BOLD}▶ Hassfest${RESET} (ghcr.io/home-assistant/hassfest)"
   docker pull -q ghcr.io/home-assistant/hassfest >/dev/null
+  # Overlay feature enums so triggers.yaml supported_features resolve
+  # (easywave is HACS-only until it lands in Core).
   docker run --rm \
     -v "$ROOT:/github/workspace" \
+    -v "$ROOT/scripts/hassfest_easywave_stub:/usr/src/homeassistant/homeassistant/components/easywave:ro" \
     ghcr.io/home-assistant/hassfest
 }
 
@@ -87,9 +90,9 @@ run_hassfest_core() {
   (
     cd "$core_path"
     export PATH="$core_path/.venv/bin:$PATH"
-    .venv/bin/python -m script.hassfest \
-      --action validate \
-      --integration-path "$INTEGRATION_PATH"
+    .venv/bin/python "$ROOT/scripts/run_hassfest_with_stub.py" \
+      "$core_path" \
+      "$INTEGRATION_PATH"
   )
 }
 
