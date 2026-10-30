@@ -8,7 +8,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.const import EntityCategory
+from homeassistant.const import STATE_OFF, STATE_ON, EntityCategory
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -122,6 +122,63 @@ class EasywaveTransmitterCoverStateBinarySensor(
             self._coordinator.fire_device_event(
                 self._device_id, EVENT_TYPE_CLOSED, subtype="down"
             )
+
+
+class EasywaveTransmitterBatteryBinarySensor(
+    EasywaveTransmitterEntity, RestoreEntity, BinarySensorEntity
+):
+    """Transmitter battery as a standard battery binary sensor (on = low).
+
+    Additional to the CORE-aligned enum sensor (unique_id ..._battery_warning),
+    which Home Assistant does not recognise as a battery entity and therefore
+    never lists in battery overviews. Same LOWBAT handling; the battery device
+    events are still fired by the enum sensor only.
+    """
+
+    _attr_device_class = BinarySensorDeviceClass.BATTERY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    # Same value as EasywaveTransmitterBatterySensor._CLEAR_THRESHOLD.
+    _CLEAR_THRESHOLD = 2
+
+    def __init__(
+        self, entry: EasywaveConfigEntry, device: EasywaveDeviceEntry
+    ) -> None:
+        """Initialize; state is unknown until the first LOWBAT report."""
+        super().__init__(entry, device, "battery")
+        self._attr_is_on: bool | None = None
+        self._ok_streak = 0
+
+    @override
+    async def async_added_to_hass(self) -> None:
+        """Restore the last known battery state before subscribing."""
+        if (last := await self.async_get_last_state()) is not None and (
+            last.state in (STATE_ON, STATE_OFF)
+        ):
+            self._attr_is_on = last.state == STATE_ON
+        await super().async_added_to_hass()
+
+    @callback
+    def handle_telegram(self, event: Any) -> None:
+        """Battery state is updated via handle_battery_status."""
+
+    @override
+    @callback
+    def handle_battery_status(self, is_low: bool) -> None:
+        """Update from the LOWBAT flag of a PUSH telegram."""
+        if is_low:
+            self._ok_streak = 0
+            if self._attr_is_on is not True:
+                self._attr_is_on = True
+                self.async_write_ha_state()
+            return
+        if self._attr_is_on is False:
+            return
+        self._ok_streak += 1
+        if self._ok_streak >= self._CLEAR_THRESHOLD:
+            self._attr_is_on = False
+            self._ok_streak = 0
+            self.async_write_ha_state()
 
 
 class EasywaveNeoBatteryBinarySensor(EasywaveNeoSensorEntity, BinarySensorEntity):

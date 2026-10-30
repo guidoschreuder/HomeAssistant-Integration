@@ -1,5 +1,13 @@
 # Easywave Integration Changelog
 
+## Unreleased — Transmitter battery binary sensor
+
+### Added
+- Transmitters now also expose their battery as a `binary_sensor` with
+  `device_class: battery` (diagnostic, on = low), so Home Assistant lists it in
+  battery overviews. The existing battery enum sensor and its unique ID are
+  unchanged.
+
 ## 0.7.11 — Transmitter trigger filtering and On/Off / Open/Close state triggers
 
 ### Fixed
