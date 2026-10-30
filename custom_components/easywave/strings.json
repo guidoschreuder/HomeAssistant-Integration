@@ -299,11 +299,13 @@
           "description": "Should the switch state be reset after activation or remain permanent?",
           "menu_options": {
             "transmitter_switch_impulse": "Impulse",
+            "transmitter_switch_impulse_press": "Impulse after press",
             "transmitter_switch_permanent": "Permanent",
             "transmitter_grouping": "Back"
           },
           "menu_option_descriptions": {
             "transmitter_switch_impulse": "The switch state of an object is reset 1 second after releasing the respective transmitter button.",
+            "transmitter_switch_impulse_press": "The switch state of an object is reset a short time after pressing the respective transmitter button, without waiting for the release telegram.",
             "transmitter_switch_permanent": "The switch state of individual objects toggles with each press of the respective transmitter button."
           }
         },

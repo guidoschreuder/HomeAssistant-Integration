@@ -206,6 +206,11 @@ TRANSMITTER_GROUPING_COVER: Final = "cover"
 # Switch modes for transmitters
 TRANSMITTER_SWITCH_IMPULSE: Final = "impulse"
 TRANSMITTER_SWITCH_PERMANENT: Final = "permanent"
+# Impulse that resets a short time after the push telegram, independent of
+# whether a release telegram is ever received.
+TRANSMITTER_SWITCH_IMPULSE_PRESS: Final = "impulse_press"
+# Seconds after the last push telegram before the button returns to "released".
+IMPULSE_PRESS_RESET_SECONDS: Final = 0.8
 TRANSMITTER_SWITCH_SWITCH: Final = "switch"
 TRANSMITTER_SWITCH_COVER: Final = "cover"
 

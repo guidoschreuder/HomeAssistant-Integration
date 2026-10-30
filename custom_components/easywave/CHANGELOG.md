@@ -1,5 +1,16 @@
 # Easywave Integration Changelog
 
+## Unreleased — Impulse after press
+
+### Added
+- New transmitter behavior **Impulse after press** (Behavior step, next to
+  Impulse and Permanent). The button sensor goes to `pressed` on the push
+  telegram and returns to `released` 0.8 s after the last push telegram,
+  independent of the release telegram. A missed release telegram can no
+  longer leave the sensor stuck on `pressed`.
+- The "Button released" device trigger is not offered in this mode (as with
+  Permanent). Existing devices keep their mode and entity IDs.
+
 ## 0.7.11 — Transmitter trigger filtering and On/Off / Open/Close state triggers
 
 ### Fixed

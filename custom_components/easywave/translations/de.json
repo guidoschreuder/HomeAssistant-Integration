@@ -299,11 +299,13 @@
           "description": "Soll der Schaltzustand nach der Betätigung zurück gesetzt werden oder permanent anstehen?",
           "menu_options": {
             "transmitter_switch_impulse": "Impuls",
+            "transmitter_switch_impulse_press": "Impuls nach Betätigung",
             "transmitter_switch_permanent": "Dauer",
             "transmitter_grouping": "Zurück"
           },
           "menu_option_descriptions": {
             "transmitter_switch_impulse": "Der Schaltzustand eines Objektes wird 1 Sekunde nach loslassen der jeweiligen Sendertaste wieder zurückgesetzt.",
+            "transmitter_switch_impulse_press": "Der Schaltzustand eines Objekts wird kurz nach dem Betätigen der jeweiligen Sendertaste zurückgesetzt, ohne auf das Loslass-Telegramm zu warten.",
             "transmitter_switch_permanent": "Der Schaltzustand der einzelnen Objekte wechselt bei jeder Betätigung der jeweiligen Sendertaste."
           }
         },

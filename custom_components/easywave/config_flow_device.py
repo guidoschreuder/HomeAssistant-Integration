@@ -30,6 +30,7 @@ from .const import (
     TRANSMITTER_GROUPING_SINGLE,
     TRANSMITTER_SWITCH_COVER,
     TRANSMITTER_SWITCH_IMPULSE,
+    TRANSMITTER_SWITCH_IMPULSE_PRESS,
     TRANSMITTER_SWITCH_PERMANENT,
     TRANSMITTER_SWITCH_SWITCH,
     device_id_for_neo_sensor,
@@ -179,6 +180,7 @@ class EasywaveDeviceAddFlowMixin(EasywaveDeviceFlowMixin):
             step_id="transmitter_switch_mode",
             menu_options=[
                 "transmitter_switch_impulse",
+                "transmitter_switch_impulse_press",
                 "transmitter_switch_permanent",
                 "transmitter_grouping",
             ],
@@ -189,6 +191,14 @@ class EasywaveDeviceAddFlowMixin(EasywaveDeviceFlowMixin):
     ) -> SubentryFlowResult:
         """Impulse mode."""
         self._switch_mode = TRANSMITTER_SWITCH_IMPULSE
+        self._learn_back_step = "transmitter_switch_mode"
+        return await self.async_step_button_count_select()
+
+    async def async_step_transmitter_switch_impulse_press(
+        self, user_input: dict[str, Any] | None = None
+    ) -> SubentryFlowResult:
+        """Impulse mode that resets after the press, not after the release."""
+        self._switch_mode = TRANSMITTER_SWITCH_IMPULSE_PRESS
         self._learn_back_step = "transmitter_switch_mode"
         return await self.async_step_button_count_select()
 

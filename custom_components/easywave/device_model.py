@@ -31,6 +31,7 @@ from .const import (
     TRANSMITTER_GROUPING_GROUP,
     TRANSMITTER_GROUPING_SINGLE,
     TRANSMITTER_SWITCH_IMPULSE,
+    TRANSMITTER_SWITCH_IMPULSE_PRESS,
     TRANSMITTER_SWITCH_PERMANENT,
 )
 
@@ -45,6 +46,7 @@ _DEVICE_INFO: Final[dict[str, dict[str, str]]] = {
         "grouping_single": "Individual",
         "grouping_group": "Group",
         "switch_impulse": "Impulse",
+        "switch_impulse_press": "Impulse after press",
         "switch_permanent": "Permanent",
         "buttons": "{count} Buttons",
         "buttons_3_or_4": "3 or 4 Buttons",
@@ -73,6 +75,7 @@ _DEVICE_INFO: Final[dict[str, dict[str, str]]] = {
         "grouping_single": "Einzeln",
         "grouping_group": "Gruppe",
         "switch_impulse": "Impuls",
+        "switch_impulse_press": "Impuls nach Betätigung",
         "switch_permanent": "Dauer",
         "buttons": "{count} Tasten",
         "buttons_3_or_4": "3 oder 4 Tasten",
@@ -101,6 +104,7 @@ _DEVICE_INFO: Final[dict[str, dict[str, str]]] = {
         "grouping_single": "Individuel",
         "grouping_group": "Groupe",
         "switch_impulse": "Impulsion",
+        "switch_impulse_press": "Impulsion après appui",
         "switch_permanent": "Permanent",
         "buttons": "{count} boutons",
         "buttons_3_or_4": "3 ou 4 boutons",
@@ -176,6 +180,8 @@ def transmitter_model(data: dict[str, Any], language: str | None = None) -> str:
         mode = data.get(CONF_SWITCH_MODE)
         if mode == TRANSMITTER_SWITCH_IMPULSE:
             details.append(_t("switch_impulse", language))
+        elif mode == TRANSMITTER_SWITCH_IMPULSE_PRESS:
+            details.append(_t("switch_impulse_press", language))
         elif mode == TRANSMITTER_SWITCH_PERMANENT:
             details.append(_t("switch_permanent", language))
         count = data.get(CONF_BUTTON_COUNT)

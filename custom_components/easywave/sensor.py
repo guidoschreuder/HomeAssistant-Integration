@@ -1,6 +1,7 @@
 """Sensor platform for the Easywave Core integration."""
 
 import logging
+from datetime import datetime
 from typing import Any, override
 
 from easywave_home_control.codec import (
@@ -20,9 +21,10 @@ from homeassistant.const import (
     EntityCategory,
     UnitOfTemperature,
 )
-from homeassistant.core import CoreState, HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import EasywaveConfigEntry
@@ -44,7 +46,9 @@ from .const import (
     EVENT_TYPE_STOPPED,
     EVENT_TYPE_TURNED_OFF,
     EVENT_TYPE_TURNED_ON,
+    IMPULSE_PRESS_RESET_SECONDS,
     TRANSMITTER_SWITCH_IMPULSE,
+    TRANSMITTER_SWITCH_IMPULSE_PRESS,
     TRANSMITTER_SWITCH_PERMANENT,
     EasywaveGatewayFeature,
     EasywaveTransmitterFeature,
@@ -363,6 +367,7 @@ class EasywaveTransmitterButtonEnumSensor(EasywaveTransmitterEntity, RestoreSens
             features |= EasywaveTransmitterFeature.BUTTON_RELEASE
         self._attr_supported_features = int(features)
         self._native_value: str | None = "released"
+        self._cancel_reset: CALLBACK_TYPE | None = None
 
     @override
     async def async_added_to_hass(self) -> None:
@@ -371,7 +376,33 @@ class EasywaveTransmitterButtonEnumSensor(EasywaveTransmitterEntity, RestoreSens
             native = last_data.native_value
             if native in (self._attr_options or ()):
                 self._native_value = str(native)
+        if self._switch_mode == TRANSMITTER_SWITCH_IMPULSE_PRESS:
+            # No reset timer survives a restart; never restore "pressed".
+            self._native_value = "released"
+        self.async_on_remove(self._cancel_reset_timer)
         await super().async_added_to_hass()
+
+    @callback
+    def _cancel_reset_timer(self) -> None:
+        """Cancel a pending reset to "released"."""
+        if self._cancel_reset is not None:
+            self._cancel_reset()
+            self._cancel_reset = None
+
+    @callback
+    def _restart_reset_timer(self) -> None:
+        """(Re)start the timer that returns the button to "released"."""
+        self._cancel_reset_timer()
+        self._cancel_reset = async_call_later(
+            self.hass, IMPULSE_PRESS_RESET_SECONDS, self._async_reset
+        )
+
+    @callback
+    def _async_reset(self, _now: datetime) -> None:
+        """Return to "released" after the impulse time."""
+        self._cancel_reset = None
+        self._native_value = "released"
+        self.async_write_ha_state()
 
     @override
     @property
@@ -392,6 +423,9 @@ class EasywaveTransmitterButtonEnumSensor(EasywaveTransmitterEntity, RestoreSens
         """Update pressed/released for this button.
 
         Impulse: press → pressed, release → released.
+        Impulse after press: press → pressed, then released after
+        IMPULSE_PRESS_RESET_SECONDS without a further push; the release
+        telegram is not needed and is ignored.
         Permanent: each press toggles pressed ↔ released (HACS 0.6.x behavior).
         """
         if isinstance(event, ButtonPushEvent) and event.button == self._button_index:
@@ -401,6 +435,8 @@ class EasywaveTransmitterButtonEnumSensor(EasywaveTransmitterEntity, RestoreSens
                 )
             else:
                 self._native_value = "pressed"
+                if self._switch_mode == TRANSMITTER_SWITCH_IMPULSE_PRESS:
+                    self._restart_reset_timer()
             self.async_write_ha_state()
         elif (
             isinstance(event, ButtonReleaseEvent)
