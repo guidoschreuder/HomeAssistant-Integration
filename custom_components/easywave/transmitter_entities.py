@@ -28,7 +28,10 @@ def create_transmitter_entities(
 ) -> dict[str, list[Any]]:
     """Return platform → entity list for a transmitter (HACS-style presentation)."""
     # Lazy imports avoid circular platform imports at module load.
-    from .binary_sensor import EasywaveTransmitterCoverStateBinarySensor
+    from .binary_sensor import (
+        EasywaveTransmitterBatteryBinarySensor,
+        EasywaveTransmitterCoverStateBinarySensor,
+    )
     from .sensor import (
         EasywaveTransmitterBatterySensor,
         EasywaveTransmitterButtonEnumSensor,
@@ -50,6 +53,10 @@ def create_transmitter_entities(
 
     # CORE-aligned enum sensor (unique_id …_battery_warning).
     result["sensor"].append(EasywaveTransmitterBatterySensor(entry, device))
+    # Standard battery entity (on = low) so HA lists it in battery overviews.
+    result["binary_sensor"].append(
+        EasywaveTransmitterBatteryBinarySensor(entry, device)
+    )
 
     if op == "1":
         if grouping == TRANSMITTER_GROUPING_SINGLE:
